@@ -12,10 +12,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.Writer;
 
+
 public class JwtInterceptor implements HandlerInterceptor {
 
     /**
-     *
+     * 前置拦截
      *
      * @param request  current HTTP request
      * @param response current HTTP response
@@ -32,14 +33,18 @@ public class JwtInterceptor implements HandlerInterceptor {
         }
         String requestURI = request.getRequestURI();
         // 登录及错误等请求不做拦截
-        if (requestURI.contains("/login") || requestURI.contains("/error") || requestURI.contains("/file") || requestURI.contains("/register")) {
+        if (requestURI.contains("/login") ||
+                requestURI.contains("/error") ||
+                requestURI.contains("/file") ||
+                requestURI.contains("/query") ||
+                requestURI.contains("/register")) {
             return true;
         }
         String token = request.getHeader("token");
         Claims claims = JwtUtil.fromToken(token);
         // 解析不成功，直接退回！访问后续资源的可能性都没有！
         if (claims == null) {
-            Result<String> error = ApiResult.error("Identity verification failed, please log in again.");
+            Result<String> error = ApiResult.error("Authentication failed, please log in first");
             response.setContentType("application/json;charset=UTF-8");
             Writer stream = response.getWriter();
             // 将失败信息输出

@@ -31,7 +31,7 @@
         </div>
         <div class="product-list">
             <el-row v-if="productList.length === 0">
-                <el-empty description="No products available"></el-empty>
+                <el-empty description="No product information available"></el-empty>
             </el-row>
             <el-row v-else>
                 <el-col @click.native="route(product)" :span="6" v-for="(product, index) in productList" :key="index">
@@ -40,7 +40,7 @@
                             <img :src="coverListParse(product)" alt="" srcset="">
                         </div>
                         <div style="display: flex;justify-content: left;gap: 4px;align-items: center;">
-                            <span class="bargain-hover">{{ product.isBargain ? 'Negotiable' : 'Not Negotiable' }}</span>
+                            <span class="bargain-hover">{{ product.isBargain ? 'Negotiable' : 'Non-negotiable' }}</span>
                             <span class="title">
                                 {{ product.name }}
                             </span>
@@ -48,7 +48,7 @@
                         <div style="padding-block: 15px;">
                             <span class="decimel-symbol">¥</span>
                             <span class="price">{{ product.price }}</span>
-                            <span class="love">0 people want this</span>
+                            <span class="love">4 people want this</span>
                         </div>
                         <div class="info">
                             <img :src="product.userAvatar" alt="" srcset="">
@@ -65,26 +65,26 @@ export default {
     name: 'Product',
     data() {
         return {
-            categoryList: [], // 存储的商品类别数组
-            isUseCategoryList: [], // 存储的启用的类别数组
+            categoryList: [], // Stored product category array
+            isUseCategoryList: [], // Stored enabled category array
             categorySelectedItem: {},
-            productQueryDto: {}, // 商品查询条件类
-            productList: [],// 存储后端返回的商品数据列表
+            productQueryDto: {}, // Product query criteria object
+            productList: [],// Stores the product data list returned by the backend
             bargainSelectedItem: {},
             searchTime: [],
-            bargainStatus: [{ isBargain: null, name: 'All' }, { isBargain: true, name: 'Negotiable' }, { isBargain: false, name: 'Not Negotiable' }]
+            bargainStatus: [{ isBargain: null, name: 'All' }, { isBargain: true, name: 'Negotiable' }, { isBargain: false, name: 'Non-negotiable' }]
 
         };
     },
     created() {
         this.fetchFreshData();
         this.fetchCategoryList();
-        // 页面加载时，默认不启用砍价查询条件
+        // When the page loads, bargaining filter is disabled by default
         this.bargainSelected(this.bargainStatus[0]);
     },
     methods: {
         route(product) {
-            // 跳转商品详情
+            // Go to product detail page
             this.$router.push('/product-detail?productId=' + product.id);
         },
         coverListParse(product) {
@@ -95,7 +95,7 @@ export default {
             return newCoverList[0];
         },
         /**
-         * 商品砍价选中事件
+         * Bargain option selected event
          * @param {*} bargain 
          */
         bargainSelected(bargain) {
@@ -104,7 +104,7 @@ export default {
             this.fetchFreshData();
         },
         /**
-         * 查询商品数据
+         * Query product data
          */
         async fetchFreshData() {
             let startTime = null;
@@ -119,30 +119,30 @@ export default {
             this.productQueryDto.startTime = startTime;
             this.productQueryDto.endTime = endTime;
             this.$axios.post('/product/query', this.productQueryDto).then(res => {
-                const { data } = res; // 解构
+                const { data } = res; // Destructuring
                 if (data.code === 200) {
                     this.productList = data.data;
                 }
             }).catch(error => {
-                console.log("商品查询异常：", error);
+                console.log("Product query error:", error);
             })
         },
         /**
-         * 商品类别选中事件
+         * Product category selected event
          * @param {*} category 
          */
         categorySelected(category) {
             this.categorySelectedItem = category;
             this.productQueryDto.categoryId = category.id;
-            // 查询对应的商品分类下面的商品数据
+            // Query product data under the selected category
             this.fetchFreshData();
         },
         /**
-         * 加载商品类别数据
+         * Load product category data
          */
         fetchCategoryList() {
             this.$axios.post('/category/query', {}).then(res => {
-                const { data } = res; // 解构
+                const { data } = res; // Destructuring
                 if (data.code === 200) {
                     this.categoryList = data.data;
                     this.isUseCategoryList = data.data.filter(category => category.isUse);
@@ -150,7 +150,7 @@ export default {
                     this.categorySelected(this.isUseCategoryList[0]);
                 }
             }).catch(error => {
-                console.log("商品类别查询异常：", error);
+                console.log("Product category query error:", error);
             })
         },
     }

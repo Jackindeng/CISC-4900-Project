@@ -1,6 +1,7 @@
 package cn.kmbeast.controller;
 
 import cn.kmbeast.aop.Pager;
+import cn.kmbeast.context.LocalThreadHolder;
 import cn.kmbeast.pojo.api.Result;
 import cn.kmbeast.pojo.dto.query.extend.ProductQueryDto;
 import cn.kmbeast.pojo.entity.Product;
@@ -66,4 +67,18 @@ public class ProductController {
     public Result<List<ProductVO>> query(@RequestBody ProductQueryDto productQueryDto) {
         return productService.query(productQueryDto);
     }
+
+    /**
+     * 查询用户商品列表
+     *
+     * @param productQueryDto 查询参数
+     * @return Result<List < ProductVO>> 响应结果
+     */
+    @PostMapping(value = "/queryUser")
+    @ResponseBody
+    public Result<List<ProductVO>> queryUser(@RequestBody ProductQueryDto productQueryDto) {
+        productQueryDto.setUserId(LocalThreadHolder.getUserId());
+        return productService.query(productQueryDto);
+    }
+
 }

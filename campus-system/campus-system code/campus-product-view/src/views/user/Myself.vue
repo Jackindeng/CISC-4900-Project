@@ -1,7 +1,7 @@
 <template>
     <div class="container-self">
         <div class="container-self-top">
-            <div class="title">Profile</div>
+            <div class="title">Personal Center</div>
         </div>
         <div class="item">
             <span :style="{
@@ -18,8 +18,8 @@
         <div v-else-if="tagSelected === 'Change Password'">
             <ResetPwd />
         </div>
-        <div v-else-if="tagSelected === 'Log out'">
-            <el-result icon="warning" title="Log out" subTitle="You will need to log in again">
+        <div v-else-if="tagSelected === 'Log Out'">
+            <el-result icon="warning" title="Log Out" subTitle="You will need to log in again after logging out">
                 <template slot="extra">
                     <span class="loginout" @click="loginout">Confirm</span>
                 </template>
@@ -35,7 +35,7 @@ export default {
     components: { ResetPwd, Self },
     data() {
         return {
-            tags: ['Edit Profile', 'Change Password', 'Log out'],
+            tags: ['Edit Profile', 'Change Password', 'Log Out'],
             tagSelected: '',
             defaultPath: 'Edit Profile',
         };
@@ -46,6 +46,7 @@ export default {
     methods: {
         loginout() {
             sessionStorage.setItem('token', null);
+            sessionStorage.setItem('userInfo', null);
             this.$router.push('/login');
         },
         condition(tag) {

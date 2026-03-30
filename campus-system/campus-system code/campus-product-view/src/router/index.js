@@ -41,6 +41,7 @@ const routes = [
       { name: 'Myself', path: "/myself", component: () => import(`@/views/user/Myself.vue`), meta: { requireAuth: true } },
       { name: 'Search Page', path: "/search", show: false, auth: false, component: () => import(`@/views/user/Search.vue`), meta: { requireAuth: true } },
       { name: 'Post Product', path: "/post-product", component: () => import(`@/views/user/PostProduct.vue`), meta: { requireAuth: true } },
+        { name: 'Edit Product', path: "/edit-product", component: () => import(`@/views/user/EditProduct.vue`), meta: { requireAuth: true } },
       { name: 'Product Detail', path: "/product-detail", component: () => import(`@/views/user/ProductDetail.vue`), meta: { requireAuth: true } },
     ]
   }
