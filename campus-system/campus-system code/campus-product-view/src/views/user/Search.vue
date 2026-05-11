@@ -16,7 +16,7 @@
                         </span>
                     </div>
                     <div style="padding-block: 15px;">
-                        <span class="decimel-symbol">¥</span>
+                        <span class="decimel-symbol">$</span>
                         <span class="price">{{ product.price }}</span>
                         <span class="love">0 people want this</span>
                     </div>

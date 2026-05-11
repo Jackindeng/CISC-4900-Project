@@ -83,12 +83,17 @@ public class UserServiceImpl implements UserService {
             return ApiResult.error("Incorrect password");
         }
         if (user.getIsLogin()) {
-            return ApiResult.error("Invalid login status");
+            return ApiResult.error("Login status error");
         }
         String token = JwtUtil.toToken(user.getId(), user.getUserRole());
         Map<String, Object> map = new HashMap<>();
         map.put("token", token);
         map.put("role", user.getUserRole());
+        // 设置上一次登录时间
+        User userEntity = new User();
+        userEntity.setId(user.getId());
+        userEntity.setLastLoginTime(LocalDateTime.now());
+        userMapper.update(userEntity);
         return ApiResult.success("Login successful", map);
     }
 
@@ -162,10 +167,10 @@ public class UserServiceImpl implements UserService {
             return ApiResult.error("Please enter a new password");
         }
         if (Objects.isNull(againPwd)) {
-            return ApiResult.error("Please confirm your password");
+            return ApiResult.error("Please confirm the password");
         }
         if (!newPwd.equals(againPwd)) {
-            return ApiResult.error("The passwords do not match");
+            return ApiResult.error("The two passwords do not match");
         }
         User user = userMapper.getByActive(
                 User.builder().id(LocalThreadHolder.getUserId()).build()

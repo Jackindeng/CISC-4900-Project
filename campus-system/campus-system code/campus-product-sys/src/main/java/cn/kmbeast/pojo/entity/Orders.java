@@ -30,6 +30,10 @@ public class Orders {
      */
     private String detail;
     /**
+     * 用户ID
+     */
+    private Integer userId;
+    /**
      * 商品ID
      */
     private Integer productId;
@@ -38,14 +42,31 @@ public class Orders {
      */
     private BigDecimal buyPrice;
     /**
+     * 购买数量
+     */
+    private Integer buyNumber;
+    /**
      * 交易状态
      */
     private Boolean tradeStatus;
+    /**
+     * 退款状态
+     */
+    private Boolean refundStatus;
+    /**
+     * 退款时间
+     */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime refundTime;
     /**
      * 交易时间
      */
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime tradeTime;
+    /**
+     * 退款是否已经确认(卖家进行的确认)
+     */
+    private Boolean isRefundConfirm;
     /**
      * 创建时间
      */

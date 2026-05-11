@@ -19,8 +19,8 @@
                         bargain.name }}</span>
                 </span>
                 <el-date-picker style="width: 216px;margin-right: 5px;" @change="fetchFreshData" size="small"
-                    v-model="searchTime" type="daterange" range-separator="to" start-placeholder="Start Date"
-                    end-placeholder="End Date">
+                    v-model="searchTime" type="daterange" range-separator="to" start-placeholder="Start date"
+                    end-placeholder="End date">
                 </el-date-picker>
                 <el-select style="width: 100px;margin-right: 5px;" @change="fetchFreshData" size="small"
                     v-model="productQueryDto.categoryId" placeholder="Category">
@@ -31,7 +31,7 @@
         </div>
         <div class="product-list">
             <el-row v-if="productList.length === 0">
-                <el-empty description="No product information available"></el-empty>
+                <el-empty description="No products available"></el-empty>
             </el-row>
             <el-row v-else>
                 <el-col @click.native="route(product)" :span="6" v-for="(product, index) in productList" :key="index">
@@ -40,15 +40,15 @@
                             <img :src="coverListParse(product)" alt="" srcset="">
                         </div>
                         <div style="display: flex;justify-content: left;gap: 4px;align-items: center;">
-                            <span class="bargain-hover">{{ product.isBargain ? 'Negotiable' : 'Non-negotiable' }}</span>
+                            <span class="bargain-hover">{{ product.isBargain ? 'Negotiable' : 'Not negotiable' }}</span>
                             <span class="title">
                                 {{ product.name }}
                             </span>
                         </div>
                         <div style="padding-block: 15px;">
-                            <span class="decimel-symbol">¥</span>
+                            <span class="decimel-symbol">$</span>
                             <span class="price">{{ product.price }}</span>
-                            <span class="love">4 people want this</span>
+                            <span class="love">{{ product.likeNumber }} people want this</span>
                         </div>
                         <div class="info">
                             <img :src="product.userAvatar" alt="" srcset="">
@@ -65,26 +65,26 @@ export default {
     name: 'Product',
     data() {
         return {
-            categoryList: [], // Stored product category array
-            isUseCategoryList: [], // Stored enabled category array
+            categoryList: [], // 存储的商品类别数组
+            isUseCategoryList: [], // 存储的启用的类别数组
             categorySelectedItem: {},
-            productQueryDto: {}, // Product query criteria object
-            productList: [],// Stores the product data list returned by the backend
+            productQueryDto: {}, // 商品查询条件类
+            productList: [],// 存储后端返回的商品数据列表
             bargainSelectedItem: {},
             searchTime: [],
-            bargainStatus: [{ isBargain: null, name: 'All' }, { isBargain: true, name: 'Negotiable' }, { isBargain: false, name: 'Non-negotiable' }]
+            bargainStatus: [{ isBargain: null, name: 'All' }, { isBargain: true, name: 'Negotiable' }, { isBargain: false, name: 'Not negotiable' }]
 
         };
     },
     created() {
         this.fetchFreshData();
         this.fetchCategoryList();
-        // When the page loads, bargaining filter is disabled by default
+        // 页面加载时，默认不启用砍价查询条件
         this.bargainSelected(this.bargainStatus[0]);
     },
     methods: {
         route(product) {
-            // Go to product detail page
+            // 跳转商品详情
             this.$router.push('/product-detail?productId=' + product.id);
         },
         coverListParse(product) {
@@ -95,7 +95,7 @@ export default {
             return newCoverList[0];
         },
         /**
-         * Bargain option selected event
+         * 商品砍价选中事件
          * @param {*} bargain 
          */
         bargainSelected(bargain) {
@@ -104,7 +104,7 @@ export default {
             this.fetchFreshData();
         },
         /**
-         * Query product data
+         * 查询商品数据
          */
         async fetchFreshData() {
             let startTime = null;
@@ -119,7 +119,7 @@ export default {
             this.productQueryDto.startTime = startTime;
             this.productQueryDto.endTime = endTime;
             this.$axios.post('/product/query', this.productQueryDto).then(res => {
-                const { data } = res; // Destructuring
+                const { data } = res; // 解构
                 if (data.code === 200) {
                     this.productList = data.data;
                 }
@@ -128,21 +128,21 @@ export default {
             })
         },
         /**
-         * Product category selected event
+         * 商品类别选中事件
          * @param {*} category 
          */
         categorySelected(category) {
             this.categorySelectedItem = category;
             this.productQueryDto.categoryId = category.id;
-            // Query product data under the selected category
+            // 查询对应的商品分类下面的商品数据
             this.fetchFreshData();
         },
         /**
-         * Load product category data
+         * 加载商品类别数据
          */
         fetchCategoryList() {
             this.$axios.post('/category/query', {}).then(res => {
-                const { data } = res; // Destructuring
+                const { data } = res; // 解构
                 if (data.code === 200) {
                     this.categoryList = data.data;
                     this.isUseCategoryList = data.data.filter(category => category.isUse);
@@ -150,7 +150,7 @@ export default {
                     this.categorySelected(this.isUseCategoryList[0]);
                 }
             }).catch(error => {
-                console.log("Product category query error:", error);
+                console.log("Category query error:", error);
             })
         },
     }

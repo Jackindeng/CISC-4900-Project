@@ -1,130 +1,102 @@
 <template>
-    <el-row style="background-color: #FFFFFF;padding: 5px 0;border-radius: 5px;">
-        <el-row style="padding: 10px;margin-left: 5px;">
-            <el-row>
-                <span class="bargain">
-                    <span
-                        :style="{ backgroundColor: bargainSelectedItem.name === bargain.name ? 'rgb(255,255,255)' : '' }"
-                        @click="bargainSelected(bargain)" v-for="(bargain, index) in bargainStatus" :key="index">{{
-                            bargain.name }}</span>
+    <div>
+        <div class="nav-category">
+            <div class="left">
+                <span :style="{
+                    color: categorySelectedItem.name === isUseCategory.name ? 'rgb(51, 51, 51)' : '',
+                    backgroundColor: categorySelectedItem.name === isUseCategory.name ? 'rgb(254, 223, 70)' : ''
+                }" @click="categorySelected(isUseCategory)" :key="index"
+                    v-for="(isUseCategory, index) in isUseCategoryList">
+                    {{ isUseCategory.name }}
                 </span>
+            </div>
+            <div class="right">
+                <span class="bargain">
+                    <span :style="{
+                        color: bargainSelectedItem.name === bargain.name ? 'rgb(51,51,51)' : '',
+                        backgroundColor: bargainSelectedItem.name === bargain.name ? 'rgb(254, 223, 70)' : ''
+                    }" @click="bargainSelected(bargain)" v-for="(bargain, index) in bargainStatus" :key="index">{{
+                        bargain.name }}</span>
+                </span>
+                <el-date-picker style="width: 216px;margin-right: 5px;" @change="fetchFreshData" size="small"
+                    v-model="searchTime" type="daterange" range-separator="to" start-placeholder="Post Start"
+                    end-placeholder="Post End">
+                </el-date-picker>
                 <el-select style="width: 100px;margin-right: 5px;" @change="fetchFreshData" size="small"
                     v-model="productQueryDto.categoryId" placeholder="Category">
                     <el-option v-for="item in categoryList" :key="item.id" :label="item.name" :value="item.id">
                     </el-option>
                 </el-select>
-                <el-date-picker style="width: 216px;margin-right: 5px;" @change="fetchFreshData" size="small"
-                    v-model="searchTime" type="daterange" range-separator="to" start-placeholder="Start Date"
-                    end-placeholder="End Date">
-                </el-date-picker>
-                <el-input size="small" style="width: 166px;" v-model="productQueryDto.name" placeholder="Product Name" clearable
-                    @clear="handleFilterClear">
-                    <el-button slot="append" @click="handleFilter" icon="el-icon-search"></el-button>
-                </el-input>
+            </div>
+        </div>
+        <div class="product-list">
+            <el-row v-if="productList.length === 0">
+                <el-empty description="No product information"></el-empty>
             </el-row>
-        </el-row>
-        <el-row style="margin: 0 22px;border-top: 1px solid rgb(245,245,245);">
-            <el-table :stripe="true" :data="tableData">
-                <el-table-column prop="userAvatar" width="68" label="Avatar">
-                    <template slot-scope="scope">
-                        <el-avatar :size="25" :src="scope.row.userAvatar" style="margin-top: 10px;"></el-avatar>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="userName" width="110" label="User"></el-table-column>
-                <el-table-column prop="name" label="Product Name"></el-table-column>
-                <el-table-column prop="categoryName" width="110" label="Category"></el-table-column>
-                <el-table-column prop="price" width="130" label="Price">
-                    <template slot-scope="scope">
-                        <span>${{ scope.row.price }}</span>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="inventory" width="110" label="Stock"></el-table-column>
-                <el-table-column prop="oldLevel" width="168" label="Condition">
-                    <template slot-scope="scope">
-                        <span>{{ scope.row.oldLevel }}/10</span>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="isBargain" width="138" label="Negotiable">
-                    <template slot-scope="scope">
-                        <span>{{ scope.row.isBargain ? 'Negotiable' : 'Not Negotiable' }}</span>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="createTime" width="168" label="Posted Time"></el-table-column>
-                <el-table-column label="Actions" width="220">
-                    <template slot-scope="scope">
-                        <span class="text-button" @click="handleEdit(scope.row)">Product Details</span>
-                        <span class="text-button" @click="handleDelete(scope.row)">Delete</span>
-                    </template>
-                </el-table-column>
-            </el-table>
-            <el-pagination style="margin:10px 0;float: right;" @size-change="handleSizeChange"
-                @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10, 20]"
-                :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper"
-                :total="totalItems"></el-pagination>
-        </el-row>
-        <el-drawer title="Product Details" :visible.sync="drawerProductOperaion" :direction="direction">
-            <div style="padding: 0 15px;">
-                <div>
-                    <span class="dialog-hover">Product Cover Images</span>
-                    <div class="detail-cover">
-                        <div @click="coverExpansion(cover)" class="cover" v-for="(cover, index) in coverList"
-                            :key="index">
-                            <img :src="cover">
+            <el-row v-else>
+                <el-col @click.native="route(product)" :span="6" v-for="(product, index) in productList" :key="index">
+                    <div class="item-product">
+                        <div class="cover">
+                            <img :src="coverListParse(product)" alt="" srcset="">
+                        </div>
+                        <div style="display: flex;justify-content: left;gap: 4px;align-items: center;">
+                            <span class="bargain-hover">{{ product.isBargain ? 'Bargain Available' : 'No Bargain' }}</span>
+                            <span class="title">
+                                {{ product.name }}
+                            </span>
+                        </div>
+                        <div style="padding-block: 15px;">
+                            <span class="decimel-symbol">$</span>
+                            <span class="price">{{ product.price }}</span>
+                            <span class="love">{{ product.likeNumber }} wants</span>
+                        </div>
+                        <div class="info">
+                            <img :src="product.userAvatar" alt="" srcset="">
+                            <span>{{ product.userName }}</span>
                         </div>
                     </div>
-                </div>
-                <div>
-                    <span class="dialog-hover">Product Details</span>
-                    <div style="padding: 10px 6px;" v-html="data.detail"></div>
-                </div>
-            </div>
-        </el-drawer>
-        <el-dialog :visible.sync="dialogCoverExpansion" width="55%">
-            <div style="padding: 80px;display: flex;justify-content: center;align-items: center;">
-                <img style="width: 500px;height: 500px;" :src="cover" alt="" srcset="">
-            </div>
-
-        </el-dialog>
-    </el-row>
+                </el-col>
+            </el-row>
+        </div>
+    </div>
 </template>
-
 <script>
 export default {
+    name: 'Product',
     data() {
         return {
-            data: {},
-            currentPage: 1,
-            coverList: [],
-            searchTime: [],
-            cover: null, // Enlarged product image
-            pageSize: 10,
-            totalItems: 0,
-            drawerProductOperaion: false, // Switch
-            isOperation: false, // Switch - marks add or edit
-            tableData: [],
-            delectedRows: [],
-            dialogCoverExpansion: false,
-            productQueryDto: {}, // Search conditions
-            direction: 'rtl', // right to left
-            categoryList: [],
+            categoryList: [], // 存储的商品类别数组
+            isUseCategoryList: [], // 存储的启用的类别数组
+            categorySelectedItem: {},
+            productQueryDto: {}, // 商品查询条件类
+            productList: [],// 存储后端返回的商品数据列表
             bargainSelectedItem: {},
-            bargainStatus: [
-                { isBargain: null, name: 'All' },
-                { isBargain: true, name: 'Negotiable' },
-                { isBargain: false, name: 'Not Negotiable' }
-            ]
+            searchTime: [],
+            bargainStatus: [{ isBargain: null, name: 'All' }, { isBargain: true, name: 'Bargain Available' }, { isBargain: false, name: 'No Bargain' }]
+
         };
     },
     created() {
-        this.fetchCategoryList();
         this.fetchFreshData();
-        // By default, do not enable the bargaining filter when the page loads
+        this.fetchCategoryList();
+        // 页面加载时，默认不启用砍价查询条件
         this.bargainSelected(this.bargainStatus[0]);
     },
     methods: {
+        route(product) {
+            // 跳转商品详情
+            this.$router.push('/product-detail?productId=' + product.id);
+        },
+        coverListParse(product) {
+            if (product.coverList === null) {
+                return;
+            }
+            const newCoverList = product.coverList.split(',');
+            return newCoverList[0];
+        },
         /**
-         * Bargain status selected event
-         * @param {*} bargain Bargain status
+         * 商品砍价选中事件
+         * @param {*} bargain 
          */
         bargainSelected(bargain) {
             this.bargainSelectedItem = bargain;
@@ -132,65 +104,7 @@ export default {
             this.fetchFreshData();
         },
         /**
-         * Load product category data
-         */
-        fetchCategoryList() {
-            this.$axios.post('/category/query', {}).then(res => {
-                const { data } = res;
-                if (data.code === 200) {
-                    this.categoryList = data.data;
-                    this.categoryList.unshift({ id: null, name: 'All' });
-                }
-            }).catch(error => {
-                console.log("Category query error:", error);
-            })
-        },
-        /**
-         * Enlarge product image
-         * @param {*} cover Image URL
-         */
-        coverExpansion(cover) {
-            this.cover = cover;
-            this.dialogCoverExpansion = true;
-        },
-        cannel() {
-            this.data = {};
-            this.drawerProductOperaion = false;
-            this.isOperation = false;
-        },
-        // Batch delete data
-        async batchDelete() {
-            if (!this.delectedRows.length) {
-                this.$message(`No data selected`);
-                return;
-            }
-            const confirmed = await this.$swalConfirm({
-                title: 'Delete Product Data',
-                text: `This action cannot be undone. Do you want to continue?`,
-                icon: 'warning',
-            });
-            if (confirmed) {
-                try {
-                    let ids = this.delectedRows.map(entity => entity.id);
-                    const response = await this.$axios.post(`/product/batchDelete`, ids);
-                    if (response.data.code === 200) {
-                        this.$notify({
-                            duration: 1000,
-                            title: 'Delete Information',
-                            message: 'Deleted successfully',
-                            type: 'success'
-                        });
-                        this.fetchFreshData();
-                        return;
-                    }
-                } catch (error) {
-                    this.$message.error("Product deletion error:", error);
-                    console.error(`Product deletion error:`, error);
-                }
-            }
-        },
-        /**
-         * Product query
+         * 查询商品数据
          */
         async fetchFreshData() {
             let startTime = null;
@@ -200,59 +114,107 @@ export default {
                 startTime = `${startDate.split('T')[0]}T00:00:00`;
                 endTime = `${endDate.split('T')[0]}T23:59:59`;
             }
-            this.productQueryDto.current = this.currentPage;
-            this.productQueryDto.size = this.pageSize;
+            // this.productQueryDto.current = this.currentPage;
+            // this.productQueryDto.size = this.pageSize;
             this.productQueryDto.startTime = startTime;
             this.productQueryDto.endTime = endTime;
             this.$axios.post('/product/query', this.productQueryDto).then(res => {
-                const { data } = res;
+                const { data } = res; // 解构
                 if (data.code === 200) {
-                    this.tableData = data.data;
-                    this.totalItems = data.total;
+                    this.productList = data.data;
                 }
             }).catch(error => {
-                this.$notify.error({
-                    title: 'Query Operation',
-                    message: error
-                });
+                console.log("Product query error: ", error);
             })
         },
-        add() {
-            this.drawerProductOperaion = true;
-        },
-        handleFilter() {
-            this.currentPage = 1;
+        /**
+         * 商品类别选中事件
+         * @param {*} category 
+         */
+        categorySelected(category) {
+            this.categorySelectedItem = category;
+            this.productQueryDto.categoryId = category.id;
+            // 查询对应的商品分类下面的商品数据
             this.fetchFreshData();
         },
-        handleFilterClear() {
-            this.handleFilter();
+        /**
+         * 加载商品类别数据
+         */
+        fetchCategoryList() {
+            this.$axios.post('/category/query', {}).then(res => {
+                const { data } = res; // 解构
+                if (data.code === 200) {
+                    this.categoryList = data.data;
+                    this.isUseCategoryList = data.data.filter(category => category.isUse);
+                    this.isUseCategoryList.unshift({ id: null, name: 'All' });
+                    this.categorySelected(this.isUseCategoryList[0]);
+                }
+            }).catch(error => {
+                console.log("Product category query error: ", error);
+            })
         },
-        handleSizeChange(val) {
-            this.pageSize = val;
-            this.currentPage = 1;
-            this.fetchFreshData();
-        },
-        handleCurrentChange(val) {
-            this.currentPage = val;
-            this.fetchFreshData();
-        },
-        parseCoverList(coverList) {
-            this.coverList = coverList.split(',');
-        },
-        handleEdit(row) {
-            this.data = row;
-            this.parseCoverList(row.coverList);
-            this.drawerProductOperaion = true;
-        },
-        handleDelete(row) {
-            this.delectedRows.push(row);
-            this.batchDelete();
-        }
-    },
+    }
 };
 </script>
-
 <style scoped lang="scss">
+.cover {
+    img {
+        width: 100%;
+        height: 240px;
+        border-radius: 10px;
+    }
+}
+
+.bargain-hover {
+    font-size: 12px;
+    font-weight: 800;
+    background-color: rgb(255, 230, 15);
+    color: rgb(51, 51, 51);
+    border-radius: 2px;
+    padding: 2px 6px;
+}
+
+.title {
+    font-size: 20px;
+    color: #1f1f1f;
+}
+
+.decimel-symbol {
+    font-size: 14px;
+    color: #ff4f24;
+    font-weight: 800;
+}
+
+.price {
+    font-size: 24px;
+    color: #ff4f24;
+    font-weight: 800;
+    margin-right: 6px;
+}
+
+.love {
+    font-size: 14px;
+    color: #999;
+}
+
+.info {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    gap: 4px;
+
+    img {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+    }
+
+    span {
+        font-size: 14px;
+        color: #999;
+    }
+}
+
 .bargain {
     display: inline-block;
     font-size: 12px;
@@ -271,26 +233,42 @@ export default {
     }
 }
 
-.detail-cover {
-    display: flex;
-    justify-content: left;
-    gap: 10px;
+.product-list {
+    padding-block: 20px;
 
-    .cover {
-        padding: 10px;
+    .item-product {
+        padding: 10px 10px 16px 10px;
         box-sizing: border-box;
-        border-radius: 5px;
+        border-radius: 15px;
+        transition: all .5s;
         cursor: pointer;
+    }
 
-        img {
-            width: 100px;
-            height: 100px;
+    .item-product:hover {
+        box-shadow: 1px 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+}
+
+.nav-category {
+    display: flex;
+    justify-content: space-between;
+
+    .left {
+        display: flex;
+        justify-content: left;
+        gap: 6px;
+
+        span {
+            display: inline-block;
+            background-color: rgb(246, 246, 246);
+            padding: 6px 22px;
+            cursor: pointer;
+            border-radius: 15px;
+        }
+
+        span:hover {
+            background-color: rgb(242, 242, 242);
         }
     }
-
-    .cover:hover {
-        background-color: rgb(246, 246, 246);
-    }
-
 }
 </style>

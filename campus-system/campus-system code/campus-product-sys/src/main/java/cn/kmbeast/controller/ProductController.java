@@ -1,10 +1,13 @@
 package cn.kmbeast.controller;
 
+import cn.kmbeast.aop.Log;
 import cn.kmbeast.aop.Pager;
 import cn.kmbeast.context.LocalThreadHolder;
 import cn.kmbeast.pojo.api.Result;
 import cn.kmbeast.pojo.dto.query.extend.ProductQueryDto;
+import cn.kmbeast.pojo.dto.update.OrdersDTO;
 import cn.kmbeast.pojo.entity.Product;
+import cn.kmbeast.pojo.vo.ChartVO;
 import cn.kmbeast.pojo.vo.ProductVO;
 import cn.kmbeast.service.ProductService;
 import org.springframework.web.bind.annotation.*;
@@ -23,11 +26,26 @@ public class ProductController {
     private ProductService productService;
 
     /**
+     * 商品下单
+     *
+     * @param ordersDTO 参数
+     * @return Result<String> 响应结果
+     */
+    @Log(detail = "Place product order")
+    @PostMapping(value = "/buyProduct")
+    @ResponseBody
+    public Result<String> buyProduct(@RequestBody OrdersDTO ordersDTO) {
+        return productService.buyProduct(ordersDTO);
+    }
+
+
+    /**
      * 新增
      *
      * @param product 参数
      * @return Result<String> 响应结果
      */
+    @Log(detail = "Product listed")
     @PostMapping(value = "/save")
     @ResponseBody
     public Result<String> save(@RequestBody Product product) {
@@ -40,6 +58,7 @@ public class ProductController {
      * @param product 参数
      * @return Result<String> 响应结果
      */
+    @Log(detail = "Product updated")
     @PutMapping(value = "/update")
     @ResponseBody
     public Result<String> update(@RequestBody Product product) {
@@ -66,6 +85,44 @@ public class ProductController {
     @ResponseBody
     public Result<List<ProductVO>> query(@RequestBody ProductQueryDto productQueryDto) {
         return productService.query(productQueryDto);
+    }
+
+    /**
+     * 商品下单
+     *
+     * @param ordersId 订单ID
+     * @return Result<String> 响应结果
+     */
+    @PostMapping(value = "/placeAnOrder/{ordersId}")
+    @ResponseBody
+    public Result<String> placeAnOrder(@PathVariable Integer ordersId) {
+        return productService.placeAnOrder(ordersId);
+    }
+
+    /**
+     * 申请退款
+     *
+     * @param ordersId 订单ID
+     * @return Result<String> 响应结果
+     */
+    @Log(detail = "Product refund request")
+    @PostMapping(value = "/refund/{ordersId}")
+    @ResponseBody
+    public Result<String> refund(@PathVariable Integer ordersId) {
+        return productService.refund(ordersId);
+    }
+
+    /**
+     * 查询用户商品指标情况
+     *
+     * @param productQueryDto 查询参数
+     * @return Result<List < ChartVO>> 响应结果
+     */
+    @PostMapping(value = "/queryProductInfo")
+    @ResponseBody
+    public Result<List<ChartVO>> queryProductInfo(@RequestBody ProductQueryDto productQueryDto) {
+        productQueryDto.setUserId(LocalThreadHolder.getUserId());
+        return productService.queryProductInfo(productQueryDto);
     }
 
     /**

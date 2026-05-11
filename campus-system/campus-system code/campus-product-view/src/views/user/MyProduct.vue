@@ -1,7 +1,7 @@
 <template>
     <div class="product-list">
         <el-row v-if="productList.length === 0">
-            <el-empty description="No product information available"></el-empty>
+            <el-empty description="No product information"></el-empty>
         </el-row>
         <el-row v-else>
             <el-col :span="6" v-for="(product, index) in productList" :key="index">
@@ -10,15 +10,15 @@
                         <img :src="coverListParse(product)" alt="" srcset="">
                     </div>
                     <div style="display: flex;justify-content: left;gap: 4px;align-items: center;">
-                        <span class="bargain-hover">{{ product.isBargain ? 'Negotiable' : 'Non-negotiable' }}</span>
+                        <span class="bargain-hover">{{ product.isBargain ? 'Bargain Available' : 'No Bargain' }}</span>
                         <span class="title" @click="route(product)">
                             {{ product.name }}
                         </span>
                     </div>
                     <div style="padding-block: 15px;">
-                        <span class="decimel-symbol">¥</span>
+                        <span class="decimel-symbol">$</span>
                         <span class="price">{{ product.price }}</span>
-                        <span class="love">4 people want this</span>
+                        <span class="love">{{ product.likeNumber }} wants</span>
                     </div>
                     <div>
                         <span @click="handleEdit(product)" class="edit-button">Edit</span>
@@ -57,12 +57,12 @@ export default {
         },
         /**
          * 商品删除
-         * @param {*} product 待处理的商品信息
+         * @param {*} product 待操作商品信息
          */
         async handleDelete(product) {
             const confirmed = await this.$swalConfirm({
                 title: `Delete product [${product.name}]`,
-                text: `This action cannot be undone. Continue?`,
+                text: `This cannot be restored after deletion. Continue?`,
                 icon: 'warning',
             });
             if (confirmed) {
@@ -72,7 +72,7 @@ export default {
                     if (response.data.code === 200) {
                         this.$notify({
                             duration: 1000,
-                            title: 'Delete Info',
+                            title: 'Delete Information',
                             message: 'Deleted successfully',
                             type: 'success'
                         });
@@ -82,11 +82,11 @@ export default {
                 } catch (error) {
                     this.$notify({
                         duration: 2000,
-                        title: 'Delete Info',
+                        title: 'Delete Information',
                         message: error,
                         type: 'error'
                     });
-                    console.error(`Product deletion error:`, error);
+                    console.error(`Product information delete error: `, error);
                 }
             }
 
@@ -113,7 +113,7 @@ export default {
                     this.productList = data.data;
                 }
             }).catch(error => {
-                console.log("Product query error:", error);
+                console.log("Product query error: ", error);
             })
         },
     }

@@ -35,6 +35,6 @@ public class Message {
     /**
      * 发送时间
      */
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy年MM月dd日 HH:mm:ss")
     private LocalDateTime createTime;
 }

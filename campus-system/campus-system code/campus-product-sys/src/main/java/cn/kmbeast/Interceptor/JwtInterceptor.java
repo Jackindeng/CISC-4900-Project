@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.Writer;
 
-
 public class JwtInterceptor implements HandlerInterceptor {
 
     /**
@@ -36,7 +35,9 @@ public class JwtInterceptor implements HandlerInterceptor {
         if (requestURI.contains("/login") ||
                 requestURI.contains("/error") ||
                 requestURI.contains("/file") ||
-                requestURI.contains("/query") ||
+                requestURI.contains("/query") && !requestURI.contains("/queryUser")
+                        && !requestURI.contains("/queryOrdersList")
+                        && !requestURI.contains("/queryProductInfo") ||
                 requestURI.contains("/register")) {
             return true;
         }
@@ -44,7 +45,7 @@ public class JwtInterceptor implements HandlerInterceptor {
         Claims claims = JwtUtil.fromToken(token);
         // 解析不成功，直接退回！访问后续资源的可能性都没有！
         if (claims == null) {
-            Result<String> error = ApiResult.error("Authentication failed, please log in first");
+            Result<String> error = ApiResult.error("身份认证异常，请先登录");
             response.setContentType("application/json;charset=UTF-8");
             Writer stream = response.getWriter();
             // 将失败信息输出

@@ -4,20 +4,20 @@
             <div class="top">
                 <div class="nav">
                     <div>
-                        <Logo name="Campus Market" />
+                        <Logo name="Campus Trading" />
                     </div>
                     <div class="route">
                         <span @click="handleRouteSelect('/product')">Products</span>
                         <span v-if="loginStatus" @click="handleRouteSelect('/myProduct')">My Products</span>
                         <span v-if="loginStatus" @click="handleRouteSelect('/mySave')">My Favorites</span>
-                        <span v-if="loginStatus" @click="handleRouteSelect('/myView')">History</span>
+                        <span v-if="loginStatus" @click="handleRouteSelect('/myView')">Browsing History</span>
                     </div>
                 </div>
                 <div
                     style="cursor: pointer;font-size: 14px;display: flex;justify-content: left;align-items: center;gap: 20px;color: rgb(143, 143, 143);">
                     <div class="word-search">
                         <div class="item">
-                            <input type="text" placeholder="Search products" v-model="key">
+                            <input type="text" placeholder="Search Products" v-model="key">
                             <i class="el-icon-search" @click="fetch"></i>
                         </div>
                     </div>
@@ -42,11 +42,11 @@
                             <i class="el-icon-plus"></i>
                         </div>
                         <div>
-                            Post
+                            Post Product
                         </div>
                     </div>
                     <div v-if="!loginStatus" @click="loginOperation">
-                        Login&nbsp;|&nbsp;Sign up
+                        Login&nbsp;|&nbsp;Register
                     </div>
                     <div v-else>
                         <img @click="handleRouteSelect('/myself')" class="avatar" :src="userInfo.userAvatar">
@@ -60,14 +60,15 @@
                 <div style="padding: 0 40px;">
                     <div class="title1">
                         <span class="title">{{ userInfo.userName }}</span>
-                       <!-- <span class="poin">Views 138</span>
-                            <span class="poin">Favorites 290</span> -->
+                        <span  class="poin" v-for="(info,index) in productInfoList" :key="index">
+                            {{info.name}}·{{ info.count }}
+                        </span>
                     </div>
-                    <!-- <div class="save">
-                        Favorites: 1
-                    </div> -->
                     <div class="date">
-                        Joined: {{ userInfo.createTime }}
+                        Last Login Time: {{ userInfo.lastLoginTime }}
+                    </div>
+                    <div class="date">
+                        Registered On: {{ userInfo.createTime }}
                     </div>
                 </div>
             </div>
@@ -87,13 +88,14 @@ export default {
     },
     data() {
         return {
-           selfPath: { name: 'Profile', path: '/mySelf' },
+            selfPath: { name: 'Profile', path: '/mySelf' },
             userRoutes: [],
             key: null,
             dialogOperaion: false,
             loginStatus: false, // 默认未登录
             userInfo: {},
             searchPath: '/search',
+            productInfoList: []
         };
     },
     created() {
@@ -101,6 +103,17 @@ export default {
         this.handleRouteSelect('/product')
     },
     methods: {
+        queryProductInfo() {
+            this.$axios.post(`/product/queryProductInfo`, {}).then(res => {
+                const { data } = res;
+                if (data.code === 200) {
+                    this.productInfoList = data.data;
+                }
+                this.loginStatus = data.code === 200;
+            }).catch(error => {
+                console.log("Product metrics query error: ", error);
+            });
+        },
         // 跳转登录页
         loginOperation() {
             this.$router.push('/login');
@@ -134,10 +147,11 @@ export default {
                     // 存储用户信息
                     setUserInfo(data.data);
                     this.userInfo = data.data;
+                    //this.queryProductInfo();
                 }
                 this.loginStatus = data.code === 200;
             }).catch(error => {
-                console.log("token error：", error);
+                console.log("Token verification error: ", error);
             });
         },
     }
