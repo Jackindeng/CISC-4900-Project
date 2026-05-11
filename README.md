@@ -119,15 +119,6 @@ This project tries to keep the code clear and readable. File names are organized
 
 This project uses GitHub for version control and collaboration. The development process can be tracked through branches, issues, pull requests, and the project board.
 
-## Future Improvements
-
-Improve the user interface
-
-Add more product categories
-
-Improve communication between buyers and sellers
-
-Add rating and review functions
 
 ## Team Members
 
